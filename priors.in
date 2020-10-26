@@ -1,0 +1,5 @@
+-2.5d0 2.5d0 ## mass index (s+1) - min, max
+0.0d0  10.0d0 ## offset - min, max (usually keep between -4,4 for log mass, and 0,10 for log amplitude)     
+2.5d0  3.5d0 ## x1, the starting point (usually -5,0)
+3.5d0 4.5d0 ## x2, the end point (usually -5,0, but you can tune it to tell the code where to start, e.g. with higher masses,apmplitudes)
+./
