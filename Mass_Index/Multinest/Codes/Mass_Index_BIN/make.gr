@@ -1,1 +1,0 @@
-gfortran gr.triangle2.f /usr/lib/libpgplot.so -o gr -lpgplot -O3 -ffast-math -march=native -ftree-vectorize
