@@ -44,23 +44,21 @@ def pull_CMOR_data(year, slon, local=False):
 	"""
 	path = local_pt0_dir if local else CMOR_dir
 	filename = path+'mev-'+str(year)+'-'+str(slon).zfill(3)+'-29-00.pt0'
+	
 	try: 
-		names=['solar', 'tag', 'date', 'time', 'range', 'ht', 'th', 'phi', 'len',
-		'peak', 'maxamp', 'snr', 'infl', 'fl', 'pn', 'err', 'D', 'P0', 't0',
-		'new_ptn', 'd_new_ptn+', 'd_new_ptn-', 'wind', 'd_wind']
-		df = pd.read_csv(filename, comment='#', delim_whitespace=True, header=None,
-			names=names, usecols=range(len(names)))
-	except IOError:
-		print('No pt0 file found for solar longitude {} in {}'
-			.format(str(slon).zfill(3), year))
+		# pt0 file headers are inconsistent and I've seen at least three variations. Hopefully this block will catch all of them.
+		with open(filename, 'r') as f:
+			for line in f:
+				if line.startswith('#'):
+					header = line
+				else:
+					break
+		header = header[2:].strip().split()
+		header=[sub.replace('flags', 'fl') for sub in header]
+		df = pd.read_csv(filename, comment='#', delim_whitespace=True, header=None, names=header)
+	except (IOError, FileNotFoundError) as e:
+		print('No pt0 file found for solar longitude {} in {}'.format(str(slon).zfill(3), year))
 		return None
-	except pd.errors.ParserError:
-		# Some of the pt0 files have different columns.
-		names = ['solar', 'tag', 'date', 'time', 'range', 'ht', 'th', 'phi', 'len',
-		'peak', 'maxamp', 'snr', 'infl', 'fl', 'pn', 'err', 't0', 'new_ptn',
-		'd_new_ptn+', 'd_new_ptn-', 'wind', 'd_wind']
-		df = pd.read_csv(filename, comment='#', delim_whitespace=True, header=None,
-			names=names, usecols=range(len(names)))
 	
 	# Convert separate date and time columns into a single datetime column
 	df['datetime'] = pd.to_datetime(df.date.map(str) + ' ' + df.time)
